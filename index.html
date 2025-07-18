@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>あかはの楽譜置き場</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景画像のカスタマイズ用 */
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('header-bg.jpg'); /* ここに背景画像のパスを設定 */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        header > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .difficulty-buttons, .genre-buttons, .sort-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .filter-btn:hover {
+            background-color: #d1d5db;
+        }
+
+        .filter-btn.active {
+            background-color: #667eea;
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .difficulty-btn.akaha.active {
+            background-color: #8b5cf6;
+        }
+
+        .difficulty-btn.normal.active {
+            background-color: #ef4444;
+        }
+
+        .sheet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .sheet-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sheet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .sheet-card.akaha {
+            border-left: 5px solid #8b5cf6;
+        }
+
+        .sheet-card.normal {
+            border-left: 5px solid #ef4444;
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .sheet-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+        }
+
+        .sheet-composer {
+            font-size: 0.85em;
+            color: #999;
+            font-style: italic;
+            margin-left: 10px;
+        }
+
+        .sheet-difficulty {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .sheet-difficulty.akaha {
+            background-color: #8b5cf6;
+        }
+
+        .sheet-difficulty.normal {
+            background-color: #ef4444;
+        }
+
+        .sheet-genre {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .genre-select {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            background-color: white;
+            color: #374151;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .genre-select:hover {
+            border-color: #667eea;
+        }
+
+        .genre-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 30px auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .youtube-embed {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .youtube-embed iframe {
+            width: 100%;
+            max-width: 560px;
+            height: 315px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .download-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #5a67d8;
+            transform: translateX(5px);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎹 あかはの楽譜置き場</h1>
+            <p>akaha's music sheets</p>
+        </header>
+
+        <div class="controls">
+            <input type="text" class="search-bar" placeholder="曲名で検索..." id="searchBar">
+            
+            <div class="filter-controls">
+                <div class="control-group">
+                    <span class="control-label">難易度</span>
+                    <div class="difficulty-buttons">
+                        <button class="filter-btn difficulty-btn akaha active" onclick="filterDifficulty('akaha')">akaha</button>
+                        <button class="filter-btn difficulty-btn normal" onclick="filterDifficulty('normal')">Normal</button>
+                        <button class="filter-btn difficulty-btn" onclick="filterDifficulty('all')">すべて</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">ジャンル</span>
+                    <select class="genre-select" id="genreSelect" onchange="filterGenre(this.value)">
+                        <option value="all">すべてのジャンル</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">並び替え</span>
+                    <div class="sort-buttons">
+                        <button class="filter-btn active" onclick="sortSheets('default')">デフォルト</button>
+                        <button class="filter-btn" onclick="sortSheets('difficulty')">難易度順</button>
+                        <button class="filter-btn" onclick="sortSheets('alphabetical')">50音順</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sheet-grid" id="sheetGrid">
+            <!-- 楽譜カードがここに表示されます -->
+        </div>
+    </div>
+
+    <!-- モーダル -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            
+            <div class="youtube-embed" id="youtubeEmbed">
+                <!-- YouTube動画がここに埋め込まれます -->
+            </div>
+            
+            <div class="download-links">
+                <a href="#" class="download-btn" id="pdfLink">
+                    📄 楽譜PDF ダウンロード
+                </a>
+                <a href="#" class="download-btn" id="midiLink">
+                    🎵 MIDI ダウンロード
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // サンプルデータ（実際のデータに置き換えてください）
+        const sheets = [
+            {
+                title: "I Wanna",
+                composer: "静香",
+                difficulty: "akaha",
+                level: 6.6,
+                genre: "ユメステ",
+                pdfUrl: "sheets/I Wanna_akaha.pdf",
+                midiUrl: "midi/I Wanna_akaha.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=YddYzob7d5I" // 実際のURLに置き換え
+            },
+            {
+                title: "I Wanna",
+                composer: "静香",
+                difficulty: "normal",
+                level: 4,
+                genre: "ユメステ",
+                pdfUrl: "sheets/I Wanna（easy）.pdf",
+                midiUrl: "midi/I Wanna（easy）.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=YddYzob7d5I"
+            },
+            {
+                title: "電脳スペクタクル",
+                composer: "猫足 蕾&阿岐留 カミラ",
+                difficulty: "akaha",
+                level: 6.9,
+                genre: "ユメステ",
+                pdfUrl: "sheets/電脳スペクタクル.pdf",
+                midiUrl: "midi/電脳スペクタクル_akaha.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=WMjd2uLmRc4"
+            },
+            {
+                title: "電脳スペクタクル",
+                composer: "猫足 蕾&阿岐留 カミラ",
+                difficulty: "normal",
+                level: 3,
+                genre: "ユメステ",
+                pdfUrl: "sheets/電脳スペクタクル（easy）.pdf",
+                midiUrl: "midi/電脳スペクタクル（easy）.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=WMjd2uLmRc4"
+            },
+            {
+                title: "不可逆的運命ディストピア",
+                composer: "猫足　蕾",
+                difficulty: "akaha",
+                level: 7.1,
+                genre: "ユメステ",
+                pdfUrl: "sheets/不可逆的運命ディストピア.pdf",
+                midiUrl: "midi/不可逆的運命ディストピア_akaha.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=GAzWxGdzYFg"
+            },
+            {
+                title: "不可逆的運命ディストピア",
+                composer: "猫足　蕾",
+                difficulty: "normal",
+                level: 5.0,
+                genre: "ユメステ",
+                pdfUrl: "sheets/不可逆的運命ディストピア（easy）.pdf",
+                midiUrl: "midi/不可逆的運命ディストピア（easy）.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=GAzWxGdzYFg"
+            },
+            {
+                title: "光焔のラテラルアーク",
+                composer: "大国奏音",
+                difficulty: "akaha",
+                level: 7.2,
+                genre: "オンゲキ",
+                pdfUrl: "sheets/光焔のラテラルアーク.pdf",
+                midiUrl: "midi/光焔のラテラルアーク.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=3UIyOlhn0QY"
+            },
+            {
+                title: "光焔のラテラルアーク",
+                composer: "大国奏音",
+                difficulty: "normal",
+                level: 5.1,
+                genre: "オンゲキ",
+                pdfUrl: "sheets/光焔のラテラルアーク（easy）.pdf",
+                midiUrl: "midi/光焔のラテラルアーク（easy）.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=3UIyOlhn0QY"
+            },
+            {
+                title: "Good bye, Merry-Go-Round.",
+                composer: "Yooh",
+                difficulty: "akaha",
+                level: 5.9,
+                genre: "オンゲキ",
+                pdfUrl: "sheets/Good bye, Merry-Go-Round..pdf",
+                midiUrl: "midi/Good bye, Merry-Go-Round..mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=feLO3TWxb_M"
+            },
+            {
+                title: "Good bye, Merry-Go-Round.",
+                composer: "Yooh",
+                difficulty: "normal",
+                level: 4,
+                genre: "オンゲキ",
+                pdfUrl: "sheets/Good bye, Merry-Go-Round.（easy）.pdf",
+                midiUrl: "midi/Good bye, Merry-Go-Round.（easy）.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=feLO3TWxb_M"
+            },
+            {
+                title: "メモリア",
+                composer: "Aira",
+                difficulty: "akaha",
+                level: 7.1,
+                genre: "ボカロ",
+                pdfUrl: "sheets/メモリア.pdf",
+                midiUrl: "midi/メモリア.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=vmYP2F88IlA"
+            },
+            {
+                title: "メモリア",
+                composer: "Aira",
+                difficulty: "normal",
+                level: 6.1,
+                genre: "ボカロ",
+                pdfUrl: "sheets/メモリア（easy）.pdf",
+                midiUrl: "midi/メモリア（easy）.mid",
+                youtubeUrl: "https://www.youtube.com/watch?v=vmYP2F88IlA"
+            },
+
+        ];
+
+        let currentDifficultyFilter = 'akaha';
+        let currentGenreFilter = 'all';
+        let currentSort = 'default';
+
+        // ジャンルプルダウンを動的に生成
+        function initializeGenreSelect() {
+            const genres = [...new Set(sheets.map(sheet => sheet.genre))];
+            const genreSelect = document.getElementById('genreSelect');
+            
+            genres.forEach(genre => {
+                const option = document.createElement('option');
+                option.value = genre;
+                option.textContent = genre;
+                genreSelect.appendChild(option);
+            });
+        }
+
+        function renderSheets() {
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const grid = document.getElementById('sheetGrid');
+            
+            let filteredSheets = sheets.filter(sheet => {
+                const matchesSearch = sheet.title.toLowerCase().includes(searchTerm);
+                const matchesDifficulty = currentDifficultyFilter === 'all' || sheet.difficulty === currentDifficultyFilter;
+                const matchesGenre = currentGenreFilter === 'all' || sheet.genre === currentGenreFilter;
+                return matchesSearch && matchesDifficulty && matchesGenre;
+            });
+
+            // ソート処理
+            if (currentSort === 'difficulty') {
+                filteredSheets.sort((a, b) => b.level - a.level); // 難しい順
+            } else if (currentSort === 'alphabetical') {
+                filteredSheets.sort((a, b) => a.title.localeCompare(b.title, 'ja'));
+            }
+
+            if (filteredSheets.length === 0) {
+                grid.innerHTML = '<div class="no-results">検索結果が見つかりませんでした</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredSheets.map(sheet => `
+                <div class="sheet-card ${sheet.difficulty}" onclick="openModal('${sheet.title}', '${sheet.difficulty}')">
+                    <div class="sheet-header">
+                        <h3 class="sheet-title">${sheet.title}</h3>
+                        <span class="sheet-composer">${sheet.composer}</span>
+                    </div>
+                    <span class="sheet-difficulty ${sheet.difficulty}">
+                        難易度: ${sheet.level}
+                    </span>
+                    <p class="sheet-genre">
+                        ${sheet.genre}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        function filterDifficulty(difficulty) {
+            currentDifficultyFilter = difficulty;
+            updateActiveButton('.difficulty-btn', difficulty);
+            renderSheets();
+        }
+
+        function filterGenre(genre) {
+            currentGenreFilter = genre;
+            renderSheets();
+        }
+
+        function sortSheets(sortType) {
+            currentSort = sortType;
+            updateActiveButton('.sort-buttons .filter-btn', sortType);
+            renderSheets();
+        }
+
+        function updateActiveButton(selector, value) {
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === value || 
+                    (value === 'all' && btn.textContent === 'すべて') ||
+                    (value === 'akaha' && btn.textContent === 'akaha') ||
+                    (value === 'normal' && btn.textContent === 'Normal') ||
+                    (value === 'default' && btn.textContent === 'デフォルト') ||
+                    (value === 'difficulty' && btn.textContent === '難易度順') ||
+                    (value === 'alphabetical' && btn.textContent === '50音順')) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function getYouTubeEmbedUrl(url) {
+            const videoId = url.match(/watch\?v=([^&]+)/);
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId[1]}`;
+            }
+            return url;
+        }
+
+        function openModal(title, difficulty) {
+            const sheet = sheets.find(s => s.title === title && s.difficulty === difficulty);
+            if (!sheet) return;
+
+            document.getElementById('modalTitle').textContent = `${title} (${difficulty} ver.)`;
+            document.getElementById('pdfLink').href = sheet.pdfUrl;
+            document.getElementById('midiLink').href = sheet.midiUrl;
+            
+            // YouTube動画を埋め込む
+            const embedUrl = getYouTubeEmbedUrl(sheet.youtubeUrl);
+            document.getElementById('youtubeEmbed').innerHTML = `
+                <iframe 
+                    src="${embedUrl}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            `;
+            
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            // YouTube動画を停止
+            document.getElementById('youtubeEmbed').innerHTML = '';
+        }
+
+        // 検索バーのイベントリスナー
+        document.getElementById('searchBar').addEventListener('input', renderSheets);
+
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // 初期化
+        initializeGenreSelect();
+        renderSheets();
+    </script>
+</body>
+</html>
