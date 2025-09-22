@@ -628,7 +628,7 @@
                 youtubeUrl: "https://www.youtube.com/watch?v=9d8xngpnhpQ"
             },
             {
-                title: "Dont Fight The Music",
+                title: "Don't Fight The Music",
                 composer: "黒魔",
                 difficulty: "akaha",
                 level: 7.1,
@@ -638,7 +638,7 @@
                 youtubeUrl: "https://www.youtube.com/watch?v=dcdICadtAwM"
             },
             {
-                title: "Dont Fight The Music",
+                title: "Don't Fight The Music",
                 composer: "黒魔",
                 difficulty: "normal",
                 level: 6.0,
@@ -712,19 +712,23 @@
             }
 
             grid.innerHTML = filteredSheets.map(sheet => `
-                <div class="sheet-card ${sheet.difficulty}" onclick="openModal('${sheet.title}', '${sheet.difficulty}')">
-                    <div class="sheet-header">
-                        <h3 class="sheet-title">${sheet.title}</h3>
-                        <span class="sheet-composer">${sheet.composer}</span>
-                    </div>
-                    <span class="sheet-difficulty ${sheet.difficulty}">
-                        難易度: ${sheet.level}
-                    </span>
-                    <p class="sheet-genre">
-                        ${sheet.genre}
-                    </p>
-                </div>
-            `).join('');
+    <div class="sheet-card ${sheet.difficulty}" 
+         data-title="${sheet.title}" 
+         data-difficulty="${sheet.difficulty}" 
+         onclick="openModal(this.dataset.title, this.dataset.difficulty)">
+        <div class="sheet-header">
+            <h3 class="sheet-title">${sheet.title}</h3>
+            <span class="sheet-composer">${sheet.composer}</span>
+        </div>
+        <span class="sheet-difficulty ${sheet.difficulty}">
+            難易度: ${sheet.level}
+        </span>
+        <p class="sheet-genre">
+            ${sheet.genre}
+        </p>
+    </div>
+`).join('');
+
         }
 
         function filterDifficulty(difficulty) {
@@ -812,5 +816,6 @@
     </script>
 </body>
 </html>
+
 
 
